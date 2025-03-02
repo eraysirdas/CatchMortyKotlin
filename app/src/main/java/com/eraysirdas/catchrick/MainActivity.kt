@@ -3,6 +3,7 @@ package com.eraysirdas.catchrick
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.view.View
@@ -22,7 +23,6 @@ class MainActivity : AppCompatActivity() {
     private var randomImageId : Int =0
     var runnable : Runnable = Runnable { }
     private var handler : Handler = Handler(Looper.getMainLooper())
-    var number = 15
     private var score=0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,32 +35,40 @@ class MainActivity : AppCompatActivity() {
             ,R.id.Iv11,R.id.Iv12,R.id.Iv13,R.id.Iv14,R.id.Iv15,R.id.Iv16)
 
 
+        runnableStart()
 
+        object : CountDownTimer(15000,1000){
+            override fun onTick(millisUntilFinished: Long) {
+                binding.timeTv.text="Time: "+millisUntilFinished/1000
 
-       runnable= object : Runnable{
-           override fun run() {
+            }
+            override fun onFinish() {
+                runnableEnd()
+            }
+        }.start()
 
-               if(number==0){
-                   handler.removeCallbacks(runnable)
-                   binding.timeTv.text="Time: "
-                   findViewById<ImageView>(randomImageId).visibility = View.INVISIBLE
-                   startDialog()
-                   return
-               }
-               number--
-               randomImageId = imageId.random()
-               for(i in imageId){
-                   findViewById<ImageView>(i).visibility = View.INVISIBLE
-               }
-               findViewById<ImageView>(randomImageId).visibility = View.VISIBLE
+    }
 
-               handler.postDelayed(runnable,1000)
-               binding.timeTv.text="Time: "+number
-           }
+    private fun runnableStart(){
+        runnable= object : Runnable{
+            override fun run() {
+                randomImageId = imageId.random()
+                for(i in imageId){
+                    findViewById<ImageView>(i).visibility = View.INVISIBLE
+                }
+                findViewById<ImageView>(randomImageId).visibility = View.VISIBLE
 
-
-       }
+                handler.postDelayed(runnable,500)
+            }
+        }
         handler.post(runnable)
+    }
+
+    private fun runnableEnd(){
+        handler.removeCallbacks(runnable)
+        binding.timeTv.text="Time: "
+        findViewById<ImageView>(randomImageId).visibility = View.INVISIBLE
+        startDialog()
     }
 
     private fun startDialog() {
